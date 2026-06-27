@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NRT Company Ltd — Unified Operations Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+:root{
+  --bg:#04080f;--bg2:#080f1a;--bg3:#0d1825;--bg4:#111f30;
+  --gold:#c8a84b;--gold2:#e2c06a;--gold-dim:rgba(200,168,75,.1);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,.12);
+  --green:#0fb87a;--green-dim:rgba(15,184,122,.12);
+  --yellow:#f5c842;--yellow-dim:rgba(245,200,66,.12);
+  --red:#e84545;--red-dim:rgba(232,69,69,.12);
+  --indigo:#818cf8;--indigo-dim:rgba(129,140,248,.12);
+  --orange:#f07c2a;--gray:#6b7f94;
+  --border:rgba(200,168,75,.13);--border2:rgba(200,168,75,.24);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#eef2f7;font-size:14px}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(200,168,75,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(200,168,75,.02) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:#2a3a4a;border-radius:3px}
+.mono{font-family:'Cascadia Code','Courier New',monospace}
+
+/* cards */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:12px}
+.card2{background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+
+/* inputs */
+.inp{width:100%;background:var(--bg4);border:1px solid rgba(200,168,75,.18);border-radius:8px;
+  padding:9px 12px;color:#eef2f7;font-size:13px;outline:none;transition:border .2s}
+.inp:focus{border-color:var(--gold)}
+.inp option{background:var(--bg4)}
+.lbl{display:block;font-size:10px;color:var(--gray);margin-bottom:4px;
+  text-transform:uppercase;letter-spacing:.6px;font-family:monospace}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;
+  border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:12px;transition:all .2s}
+.btn-gold{background:var(--gold);color:#04090f}.btn-gold:hover{background:var(--gold2)}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--border2)}.btn-outline:hover{background:var(--gold-dim)}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{opacity:.85}
+.btn-green{background:var(--green);color:#04090f}.btn-green:hover{opacity:.85}
+.btn-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(232,69,69,.3)}.btn-red:hover{background:rgba(232,69,69,.25)}
+.btn-yellow{background:var(--yellow);color:#000}.btn-yellow:hover{opacity:.85}
+.btn-sm{padding:5px 11px;font-size:11px;border-radius:6px}
+.btn-xs{padding:3px 8px;font-size:10px;border-radius:5px}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.b-green{background:var(--green-dim);color:var(--green)}
+.b-blue{background:var(--blue-dim);color:var(--blue)}
+.b-yellow{background:var(--yellow-dim);color:var(--yellow)}
+.b-red{background:var(--red-dim);color:var(--red)}
+.b-gold{background:var(--gold-dim);color:var(--gold)}
+.b-indigo{background:var(--indigo-dim);color:var(--indigo)}
+.b-orange{background:rgba(240,124,42,.12);color:var(--orange)}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:9px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--gray);font-weight:500;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid rgba(13,24,37,.8);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(200,168,75,.025)}
+
+/* modals */
+.overlay{position:fixed;inset:0;background:rgba(4,9,15,.93);z-index:500;
+  display:flex;align-items:flex-start;justify-content:center;padding:16px;
+  overflow-y:auto;backdrop-filter:blur(6px)}
+.overlay.hidden{display:none}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;
+  width:100%;max-width:560px;margin-top:20px}
+
+/* toast */
+.toast{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px 14px;
+  font-size:12px;display:flex;align-items:center;gap:8px;min-width:200px;
+  box-shadow:0 8px 28px rgba(0,0,0,.5);animation:tslide .25s ease}
+@keyframes tslide{from{transform:translateX(50px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* views */
+.view{display:none}.view.active{display:block}
+
+/* login */
+#loginView{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:var(--bg)}
+#loginView.hidden{display:none}
+
+/* app shell */
+#appShell{display:none;flex-direction:column;min-height:100vh}
+#appShell.active{display:flex}
+
+/* sidebar */
+#sidebar{width:230px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;transition:transform .3s;z-index:400}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;
+  cursor:pointer;font-size:13px;color:var(--gray);transition:all .15s;margin-bottom:2px;border:1px solid transparent}
+.nav-item:hover{background:var(--bg4);color:#eef2f7}
+.nav-item.active-nav{background:var(--gold-dim);color:var(--gold);border-color:rgba(200,168,75,.2)}
+
+/* goods list rows */
+.goods-row{display:grid;grid-template-columns:1fr 70px 100px 100px 36px;gap:6px;align-items:center;
+  background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+
+/* dept header accents */
+.dh-blue{background:linear-gradient(135deg,rgba(59,130,246,.14),rgba(59,130,246,.04));border-bottom:2px solid rgba(59,130,246,.35)}
+.dh-green{background:linear-gradient(135deg,rgba(15,184,122,.14),rgba(15,184,122,.04));border-bottom:2px solid rgba(15,184,122,.35)}
+.dh-yellow{background:linear-gradient(135deg,rgba(245,200,66,.14),rgba(245,200,66,.04));border-bottom:2px solid rgba(245,200,66,.35)}
+.dh-red{background:linear-gradient(135deg,rgba(232,69,69,.14),rgba(232,69,69,.04));border-bottom:2px solid rgba(232,69,69,.35)}
+.dh-indigo{background:linear-gradient(135deg,rgba(129,140,248,.14),rgba(129,140,248,.04));border-bottom:2px solid rgba(129,140,248,.35)}
+
+/* stat card */
+.scard{border-radius:12px;padding:16px 18px}
+
+/* print styles */
+@media print{
+  #sidebar,#topbar,.no-print{display:none!important}
+  #mainArea{margin-left:0!important}
+  body{background:#fff!important;color:#000!important;font-size:12px}
+  body::before{display:none!important}
+  .card,.card2{border:1px solid #ccc!important;background:#fff!important;border-radius:0!important}
+  th{background:#1a3c6b!important;color:#fff!important;border:1px solid #999!important}
+  td{border:1px solid #ccc!important;color:#000!important;background:#fff!important}
+  .badge{border:1px solid #999!important;background:#f5f5f5!important;color:#000!important}
+  .view{display:block!important}
+  .view:not(.print-target){display:none!important}
+  .print-header{display:block!important}
+  .dept-totals{display:grid!important}
+  /* hide all views except the one being printed */
+}
+.print-header{display:none}
+
+/* responsive */
+@media(max-width:768px){
+  #sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #mainArea{margin-left:0!important}
+  .goods-row{grid-template-columns:1fr 60px 90px 90px 30px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ PRINT HEADER (hidden on screen) ═══════════════════ -->
+<div class="print-header" id="printHeader" style="display:none;text-align:center;padding:20px 0 12px;border-bottom:3px solid #1a3c6b;margin-bottom:16px">
+  <div style="font-size:22px;font-weight:900;color:#1a3c6b;letter-spacing:1px">NRT COMPANY LTD</div>
+  <div style="font-size:11px;color:#555;margin-top:2px">TIN: 111643906 | Kigali, Rwanda</div>
+  <div style="font-size:15px;font-weight:700;margin-top:8px;color:#222" id="printTitle"></div>
+  <div style="font-size:11px;color:#777;margin-top:3px" id="printDate"></div>
+</div>
+
+<!-- ═══════════════════ LOGIN ═══════════════════ -->
+<div id="loginView">
+  <div class="card2 w-full" style="max-width:360px;padding:36px 32px">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="display:inline-flex;align-items:center;justify-content:center;
+        width:64px;height:64px;border-radius:18px;margin-bottom:12px;
+        background:linear-gradient(135deg,var(--gold),#a07020)">
+        <span style="font-size:28px;font-weight:900;color:#000">N</span>
+      </div>
+      <div style="font-size:20px;font-weight:800;color:var(--gold)">NRT Company Ltd</div>
+      <div style="font-size:11px;color:var(--gray);margin-top:4px">TIN: 111643906 · Unified Operations Portal</div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label class="lbl">Department / Role</label>
+      <select id="loginRole" class="inp">
+        <option value="">— Select your department —</option>
+        <option value="admin">👑 Team Leader (Master Admin)</option>
+        <option value="sales">🚚 Logistics &amp; Sales</option>
+        <option value="inventory">📦 Inventory</option>
+        <option value="credit">💳 Credit Management</option>
+        <option value="problems">⚠️ Problem Tracking</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:18px">
+      <label class="lbl">Password</label>
+      <div style="position:relative">
+        <input id="loginPass" type="password" class="inp" placeholder="Enter your password" style="padding-right:38px"
+               onkeydown="if(event.key==='Enter')doLogin()"/>
+        <button onclick="togglePwd('loginPass',this)" class="no-print"
+          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
+            background:none;border:none;cursor:pointer;color:var(--gray);font-size:14px">👁</button>
+      </div>
+    </div>
+
+    <div id="loginErr" style="display:none;margin-bottom:12px;font-size:11px;text-align:center;
+      background:var(--red-dim);color:var(--red);padding:8px;border-radius:8px"></div>
+
+    <button onclick="doLogin()" class="btn btn-gold" style="width:100%;justify-content:center;font-size:14px">
+      🔐 Login
+    </button>
+    <div style="text-align:center;font-size:11px;color:var(--gray);margin-top:14px">
+      Secure prototype · Data stored in browser
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ APP SHELL ═══════════════════ -->
+<div id="appShell" style="display:none" class="flex">
+
+  <!-- Sidebar overlay (mobile) -->
+  <div id="sbOverlay" onclick="closeSidebar()"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:399"></div>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div style="padding:18px 16px 12px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--gold);font-family:monospace;letter-spacing:.1em">NRT COMPANY LTD</div>
+      <div style="font-size:10px;color:var(--gray);margin-top:2px">TIN: 111643906</div>
+    </div>
+    <div style="padding:10px 16px 8px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--gray)">Logged in as</div>
+      <div id="sidebarRole" style="font-size:13px;font-weight:700;color:var(--gold);margin-top:2px"></div>
+    </div>
+    <nav id="sidebarNav" style="padding:10px 10px;flex:1;overflow-y:auto"></nav>
+    <div style="padding:10px 10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px">
+      <button onclick="openChangePwd()" class="btn btn-outline btn-sm" style="width:100%;justify-content:center">🔑 Change Password</button>
+      <button onclick="doLogout()" class="btn btn-red btn-sm" style="width:100%;justify-content:center">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div id="mainArea" style="flex:1;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden">
+
+    <!-- TOP BAR -->
+    <header id="topbar" style="height:52px;display:flex;align-items:center;justify-content:space-between;
+      padding:0 18px;background:rgba(4,8,15,.97);border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)" class="no-print">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button onclick="toggleSidebar()" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:18px;line-height:1">☰</button>
+        <span id="topbarTitle" style="font-weight:700;font-size:13px;color:var(--gold)">NRT Portal</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="topbarDate" style="font-size:11px;color:var(--gray);font-family:monospace"></span>
+        <button onclick="doLogout()" class="btn btn-red btn-sm">Logout</button>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main style="flex:1;overflow-y:auto;padding:18px 16px 32px" id="pageContent">
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="view-dashboard" class="view">
+  <div class="dh-indigo" style="border-radius:12px;padding:18px 20px;margin-bottom:20px">
+    <div style="font-size:16px;font-weight:800;color:var(--indigo)">👑 Team Leader Dashboard</div>
+    <div style="font-size:11px;color:var(--gray);margin-top:3px">Master overview · NRT Company Ltd</div>
+  </div>
+
+  <!-- Summary cards -->
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px" class="md:grid-cols-4">
+    <div class="scard" style="background:var(--blue-dim);border:1px solid rgba(59,130,246,.25)">
+      <div style="font-size:10px;color:var(--blue);font-family:monospace;margin-bottom:4px">PENDING PICKUPS</div>
+      <div id="ds-sales" style="font-size:28px;font-weight:900;color:var(--blue);font-family:monospace">0</div>
+    </div>
+    <div class="scard" style="background:var(--green-dim);border:1px solid rgba(15,184,122,.25)">
+      <div style="font-size:10px;color:var(--green);font-family:monospace;margin-bottom:4px">TOTAL STOCK QTY IN</div>
+      <div id="ds-inv" style="font-size:28px;font-weight:900;color:var(--green);font-family:monospace">0</div>
+    </div>
+    <div class="scard" style="background:var(--yellow-dim);border:1px solid rgba(245,200,66,.25)">
+      <div style="font-size:10px;color:var(--yellow);font-family:monospace;margin-bottom:4px">APPROVED CREDIT</div>
+      <div id="ds-credit" style="font-size:18px;font-weight:900;color:var(--yellow);font-family:monospace">RWF 0</div>
+    </div>
+    <div class="scard" style="background:var(--red-dim);border:1px solid rgba(232,69,69,.25)">
+      <div style="font-size:10px;color:var(--red);font-family:monospace;margin-bottom:4px">OPEN PROBLEMS</div>
+      <div id="ds-prob" style="font-size:28px;font-weight:900;color:var(--red);font-family:monospace">0</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px">
+    <span style="font-weight:700;font-size:13px">Master Data View</span>
+    <div style="flex:1"></div>
+    <select id="dashFilter" class="inp" style="width:auto;font-size:12px" onchange="renderDashTable()">
+      <option value="all">All Departments</option>
+      <option value="sales">🚚 Sales</option>
+      <option value="inventory">📦 Inventory</option>
+      <option value="credit">💳 Credit</option>
+      <option value="problems">⚠️ Problems</option>
+    </select>
+    <button onclick="exportAllCSV()" class="btn btn-outline btn-sm no-print">📥 Export CSV</button>
+    <button onclick="printDash()" class="btn btn-blue btn-sm no-print">🖨️ Print Dashboard</button>
+  </div>
+
+  <div class="card" style="overflow:hidden">
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Dept</th><th>Date</th><th>Primary</th>
+          <th>Detail</th><th>Amount / Info</th><th>Status</th>
+          <th class="no-print">Del</th>
+        </tr></thead>
+        <tbody id="dashTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SALES / LOGISTICS ═══ -->
+<div id="view-sales" class="view">
+  <!-- Print header placeholder -->
+  <div class="dh-blue" style="border-radius:12px;padding:18px 20px;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--blue)">🚚 Logistics &amp; Sales — Uncarried Goods</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:3px">Record goods left behind by customers</div>
+      </div>
+      <button onclick="printDept('sales')" class="btn btn-blue btn-sm no-print">🖨️ Print Report</button>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="card" style="padding:18px;margin-bottom:18px">
+    <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:14px">+ New Uncarried Goods Entry</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px">
+      <div><label class="lbl">Customer Name *</label><input id="s-custname" class="inp" placeholder="Full name"/></div>
+      <div><label class="lbl">Phone</label><input id="s-phone" class="inp" placeholder="+250 7XX XXX XXX"/></div>
+      <div><label class="lbl">Invoice Number *</label><input id="s-invoice" class="inp" placeholder="INV-0001"/></div>
+      <div><label class="lbl">Date *</label><input id="s-date" type="date" class="inp"/></div>
+      <div><label class="lbl">Reason *</label>
+        <select id="s-reason" class="inp">
+          <option value="">— Select reason —</option>
+          <option>Car too small</option><option>Customer forgot</option>
+          <option>No transport available</option><option>Payment incomplete</option>
+          <option>Stock discrepancy</option><option>Other</option>
+        </select>
+      </div>
+      <div><label class="lbl">Status</label>
+        <select id="s-status" class="inp">
+          <option value="Pending">Pending</option>
+          <option value="Picked Up">Picked Up</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- GOODS LIST -->
+    <div style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <label class="lbl" style="margin:0">Goods Left Behind *</label>
+        <button onclick="addGoodsRow('s-glist','s-gempty')" class="btn btn-blue btn-sm no-print">+ Add Item</button>
+      </div>
+      <!-- Header row -->
+      <div id="s-gheader" style="display:none;
+        display:grid;grid-template-columns:1fr 70px 100px 100px 36px;
+        gap:6px;padding:4px 10px;margin-bottom:4px">
+        <span class="lbl" style="margin:0">Product Name / SKU</span>
+        <span class="lbl" style="margin:0">Qty</span>
+        <span class="lbl" style="margin:0">Unit Price (RWF)</span>
+        <span class="lbl" style="margin:0">Total (RWF)</span>
+        <span></span>
+      </div>
+      <div id="s-glist" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div id="s-gempty" style="font-size:11px;color:var(--gray);text-align:center;
+        padding:14px;background:var(--bg4);border-radius:8px;border:1px dashed rgba(200,168,75,.15)">
+        Click "+ Add Item" to add goods one by one
+      </div>
+      <!-- Totals bar -->
+      <div id="s-gtotals" style="display:none;justify-content:flex-end;gap:20px;margin-top:10px;
+        padding:10px 14px;background:var(--bg4);border-radius:8px;border:1px solid var(--border)">
+        <span style="font-size:11px;color:var(--gray)">Items: <strong id="s-tItems" style="color:var(--blue)">0</strong></span>
+        <span style="font-size:11px;color:var(--gray)">Total Qty: <strong id="s-tQty" style="color:var(--blue)">0</strong></span>
+        <span style="font-size:11px;color:var(--gray)">Grand Total: <strong id="s-tVal" style="color:var(--blue)">RWF 0</strong></span>
+      </div>
+    </div>
+
+    <button onclick="submitSales()" class="btn btn-blue" style="font-size:13px">💾 Save Entry</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card" style="overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+      padding:12px 14px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;font-size:13px;color:var(--blue)">Uncarried Goods Records</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="s-fStatus" class="inp btn-sm" style="width:auto;font-size:11px" onchange="renderSales()">
+          <option value="all">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Picked Up">Picked Up</option>
+        </select>
+        <input id="s-search" class="inp" style="width:150px;font-size:11px" placeholder="🔍 Search..." oninput="renderSales()"/>
+        <span id="s-count" style="font-size:11px;color:var(--gray);font-family:monospace">0 records</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Customer</th><th>Phone</th><th>Invoice</th>
+          <th>Goods</th><th>Qty</th><th>Grand Total</th><th>Reason</th><th>Status</th>
+          <th class="no-print">Actions</th>
+        </tr></thead>
+        <tbody id="salesTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ INVENTORY ═══ -->
+<div id="view-inventory" class="view">
+  <div class="dh-green" style="border-radius:12px;padding:18px 20px;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--green)">📦 Inventory — Stock In</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:3px">Record all incoming stock from suppliers</div>
+      </div>
+      <button onclick="printDept('inventory')" class="btn btn-green btn-sm no-print">🖨️ Print Report</button>
+    </div>
+  </div>
+
+  <div class="card" style="padding:18px;margin-bottom:18px">
+    <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:14px">+ New Stock-In Entry</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px">
+      <div><label class="lbl">Date *</label><input id="i-date" type="date" class="inp"/></div>
+      <div><label class="lbl">Supplier Name *</label><input id="i-supplier" class="inp" placeholder="Supplier name"/></div>
+      <div><label class="lbl">Batch Number</label><input id="i-batch" class="inp" placeholder="BATCH-001"/></div>
+      <div><label class="lbl">Warehouse / Aisle</label><input id="i-location" class="inp" placeholder="e.g. Aisle B3"/></div>
+      <div><label class="lbl">Notes</label><input id="i-notes" class="inp" placeholder="Any notes..."/></div>
+    </div>
+
+    <!-- PRODUCTS LIST -->
+    <div style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <label class="lbl" style="margin:0">Products Received *</label>
+        <button onclick="addGoodsRow('i-glist','i-gempty')" class="btn btn-green btn-sm no-print">+ Add Product</button>
+      </div>
+      <div id="i-gheader" style="display:none;
+        grid-template-columns:1fr 70px 100px 100px 36px;
+        gap:6px;padding:4px 10px;margin-bottom:4px">
+        <span class="lbl" style="margin:0">Product Name / SKU</span>
+        <span class="lbl" style="margin:0">Qty</span>
+        <span class="lbl" style="margin:0">Unit Price (RWF)</span>
+        <span class="lbl" style="margin:0">Total (RWF)</span>
+        <span></span>
+      </div>
+      <div id="i-glist" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div id="i-gempty" style="font-size:11px;color:var(--gray);text-align:center;
+        padding:14px;background:var(--bg4);border-radius:8px;border:1px dashed rgba(200,168,75,.15)">
+        Click "+ Add Product" to add items one by one
+      </div>
+      <div id="i-gtotals" style="display:none;justify-content:flex-end;gap:20px;margin-top:10px;
+        padding:10px 14px;background:var(--bg4);border-radius:8px;border:1px solid var(--border)">
+        <span style="font-size:11px;color:var(--gray)">Products: <strong id="i-tItems" style="color:var(--green)">0</strong></span>
+        <span style="font-size:11px;color:var(--gray)">Total Qty: <strong id="i-tQty" style="color:var(--green)">0</strong></span>
+        <span style="font-size:11px;color:var(--gray)">Total Value: <strong id="i-tVal" style="color:var(--green)">RWF 0</strong></span>
+      </div>
+    </div>
+
+    <button onclick="submitInventory()" class="btn btn-green" style="font-size:13px">💾 Save Stock Entry</button>
+  </div>
+
+  <!-- Stats -->
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px">
+    <div class="scard" style="background:var(--green-dim);border:1px solid rgba(15,184,122,.25)">
+      <div style="font-size:10px;color:var(--green);font-family:monospace">TOTAL DELIVERIES</div>
+      <div id="i-sTot" style="font-size:26px;font-weight:900;color:var(--green);font-family:monospace">0</div>
+    </div>
+    <div class="scard" style="background:var(--blue-dim);border:1px solid rgba(59,130,246,.25)">
+      <div style="font-size:10px;color:var(--blue);font-family:monospace">TOTAL STOCK VALUE</div>
+      <div id="i-sVal" style="font-size:18px;font-weight:900;color:var(--blue);font-family:monospace">RWF 0</div>
+    </div>
+  </div>
+
+  <div class="card" style="overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+      padding:12px 14px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;font-size:13px;color:var(--green)">Stock-In Records</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="i-search" class="inp" style="width:150px;font-size:11px" placeholder="🔍 Search..." oninput="renderInventory()"/>
+        <span id="i-count" style="font-size:11px;color:var(--gray);font-family:monospace">0 records</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Supplier</th><th>Batch</th><th>Location</th>
+          <th>Products</th><th>Total Qty</th><th>Total Value</th>
+          <th class="no-print">Actions</th>
+        </tr></thead>
+        <tbody id="invTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CREDIT ═══ -->
+<div id="view-credit" class="view">
+  <div class="dh-yellow" style="border-radius:12px;padding:18px 20px;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--yellow)">💳 Credit Management</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:3px">Track customer credit &amp; goods taken on credit</div>
+      </div>
+      <button onclick="printDept('credit')" class="btn btn-yellow btn-sm no-print">🖨️ Print Report</button>
+    </div>
+  </div>
+
+  <div class="card" style="padding:18px;margin-bottom:18px">
+    <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:14px">+ New Credit Record</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px">
+      <div><label class="lbl">Customer Name *</label><input id="c-name" class="inp" placeholder="Full name"/></div>
+      <div><label class="lbl">Account Number *</label><input id="c-acct" class="inp" placeholder="ACC-0001"/></div>
+      <div><label class="lbl">Phone</label><input id="c-phone" class="inp" placeholder="+250 7XX XXX XXX"/></div>
+      <div><label class="lbl">Credit Requested (RWF) *</label><input id="c-requested" type="number" min="0" class="inp" placeholder="0"/></div>
+      <div><label class="lbl">Approved Credit Limit (RWF)</label><input id="c-limit" type="number" min="0" class="inp" placeholder="0"/></div>
+      <div><label class="lbl">Outstanding Balance (RWF)</label><input id="c-balance" type="number" min="0" class="inp" placeholder="0"/></div>
+      <div><label class="lbl">Payment Due Date</label><input id="c-duedate" type="date" class="inp"/></div>
+      <div><label class="lbl">Status</label>
+        <select id="c-status" class="inp">
+          <option value="Pending Approval">Pending Approval</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      <div><label class="lbl">Notes</label><input id="c-notes" class="inp" placeholder="Any notes..."/></div>
+    </div>
+
+    <!-- GOODS TAKEN ON CREDIT -->
+    <div style="margin-bottom:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <label class="lbl" style="margin:0;color:var(--yellow)">Goods Taken on Credit</label>
+        <button onclick="addGoodsRow('c-glist','c-gempty')" class="btn btn-yellow btn-sm no-print">+ Add Item</button>
+      </div>
+      <div id="c-gheader" style="display:none;
+        grid-template-columns:1fr 70px 100px 100px 36px;
+        gap:6px;padding:4px 10px;margin-bottom:4px">
+        <span class="lbl" style="margin:0">Product / Description</span>
+        <span class="lbl" style="margin:0">Qty</span>
+        <span class="lbl" style="margin:0">Unit Price (RWF)</span>
+        <span class="lbl" style="margin:0">Total (RWF)</span>
+        <span></span>
+      </div>
+      <div id="c-glist" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div id="c-gempty" style="font-size:11px;color:var(--gray);text-align:center;
+        padding:14px;background:var(--bg4);border-radius:8px;border:1px dashed rgba(245,200,66,.15)">
+        Optional — add goods this customer took on credit
+      </div>
+      <div id="c-gtotals" style="display:none;justify-content:flex-end;gap:20px;margin-top:10px;
+        padding:10px 14px;background:var(--bg4);border-radius:8px;border:1px solid var(--border)">
+        <span style="font-size:11px;color:var(--gray)">Items: <strong id="c-tItems" style="color:var(--yellow)">0</strong></span>
+        <span style="font-size:11px;color:var(--gray)">Total Qty: <strong id="c-tQty" style="color:var(--yellow)">0</strong></span>
+        <span style="font-size:11px;color:var(--gray)">Goods Total: <strong id="c-tVal" style="color:var(--yellow)">RWF 0</strong></span>
+      </div>
+    </div>
+
+    <button onclick="submitCredit()" class="btn btn-yellow" style="font-size:13px">💾 Save Credit Record</button>
+  </div>
+
+  <!-- Credit summary cards -->
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px">
+    <div class="scard" style="background:var(--yellow-dim);border:1px solid rgba(245,200,66,.25)">
+      <div style="font-size:10px;color:var(--yellow);font-family:monospace">TOTAL APPROVED</div>
+      <div id="c-sApproved" style="font-size:18px;font-weight:900;color:var(--yellow);font-family:monospace">RWF 0</div>
+    </div>
+    <div class="scard" style="background:var(--red-dim);border:1px solid rgba(232,69,69,.25)">
+      <div style="font-size:10px;color:var(--red);font-family:monospace">OUTSTANDING BALANCE</div>
+      <div id="c-sBalance" style="font-size:18px;font-weight:900;color:var(--red);font-family:monospace">RWF 0</div>
+    </div>
+    <div class="scard" style="background:var(--gold-dim);border:1px solid rgba(200,168,75,.25)">
+      <div style="font-size:10px;color:var(--gold);font-family:monospace">GOODS ON CREDIT VALUE</div>
+      <div id="c-sGoods" style="font-size:18px;font-weight:900;color:var(--gold);font-family:monospace">RWF 0</div>
+    </div>
+    <div class="scard" style="background:var(--indigo-dim);border:1px solid rgba(129,140,248,.25)">
+      <div style="font-size:10px;color:var(--indigo);font-family:monospace">PENDING APPROVALS</div>
+      <div id="c-sPending" style="font-size:28px;font-weight:900;color:var(--indigo);font-family:monospace">0</div>
+    </div>
+  </div>
+
+  <div class="card" style="overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+      padding:12px 14px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;font-size:13px;color:var(--yellow)">Credit Records</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="c-fStatus" class="inp" style="width:auto;font-size:11px" onchange="renderCredit()">
+          <option value="all">All Status</option>
+          <option value="Pending Approval">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+        <input id="c-search" class="inp" style="width:150px;font-size:11px" placeholder="🔍 Search..." oninput="renderCredit()"/>
+        <span id="c-count" style="font-size:11px;color:var(--gray);font-family:monospace">0 records</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Customer</th><th>Account</th>
+          <th>Requested</th><th>Limit</th><th>Balance</th>
+          <th>Goods Value</th><th>Due Date</th><th>Status</th>
+          <th class="no-print">Actions</th>
+        </tr></thead>
+        <tbody id="creditTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PROBLEMS ═══ -->
+<div id="view-problems" class="view">
+  <div class="dh-red" style="border-radius:12px;padding:18px 20px;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--red)">⚠️ Problem Tracking — Daily Issues</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:3px">Log and track operational problems</div>
+      </div>
+      <button onclick="printDept('problems')" class="btn btn-red btn-sm no-print" style="background:var(--red);color:#fff">🖨️ Print Report</button>
+    </div>
+  </div>
+
+  <div class="card" style="padding:18px;margin-bottom:18px">
+    <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:14px">+ Report New Problem</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:10px">
+      <div><label class="lbl">Date *</label><input id="p-date" type="date" class="inp"/></div>
+      <div><label class="lbl">Issue Type *</label>
+        <select id="p-type" class="inp">
+          <option value="">— Select type —</option>
+          <option>Delivery Delay</option><option>System Error</option>
+          <option>Stock Mismatch</option><option>Customer Complaint</option>
+          <option>Payment Issue</option><option>Staff Issue</option>
+          <option>Supplier Problem</option><option>Transport Breakdown</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div><label class="lbl">Severity *</label>
+        <select id="p-severity" class="inp">
+          <option value="High">🔴 High</option>
+          <option value="Medium" selected>🟡 Medium</option>
+          <option value="Low">🟢 Low</option>
+        </select>
+      </div>
+      <div><label class="lbl">Person Responsible</label><input id="p-person" class="inp" placeholder="Name / Department"/></div>
+      <div><label class="lbl">Status</label>
+        <select id="p-status" class="inp">
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Resolved">Resolved</option>
+        </select>
+      </div>
+      <div style="grid-column:1/-1">
+        <label class="lbl">Detailed Description *</label>
+        <textarea id="p-desc" class="inp" rows="3" placeholder="Describe the problem in detail..."></textarea>
+      </div>
+    </div>
+    <button onclick="submitProblem()" class="btn" style="background:var(--red);color:#fff;font-size:13px">💾 Submit Problem Report</button>
+  </div>
+
+  <!-- Problem stats -->
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px">
+    <div class="scard" style="background:var(--red-dim);border:1px solid rgba(232,69,69,.25)">
+      <div style="font-size:10px;color:var(--red);font-family:monospace">OPEN ISSUES</div>
+      <div id="p-sOpen" style="font-size:26px;font-weight:900;color:var(--red);font-family:monospace">0</div>
+    </div>
+    <div class="scard" style="background:var(--yellow-dim);border:1px solid rgba(245,200,66,.25)">
+      <div style="font-size:10px;color:var(--yellow);font-family:monospace">HIGH SEVERITY</div>
+      <div id="p-sHigh" style="font-size:26px;font-weight:900;color:var(--yellow);font-family:monospace">0</div>
+    </div>
+    <div class="scard" style="background:var(--green-dim);border:1px solid rgba(15,184,122,.25)">
+      <div style="font-size:10px;color:var(--green);font-family:monospace">RESOLVED</div>
+      <div id="p-sResolved" style="font-size:26px;font-weight:900;color:var(--green);font-family:monospace">0</div>
+    </div>
+    <div class="scard" style="background:var(--indigo-dim);border:1px solid rgba(129,140,248,.25)">
+      <div style="font-size:10px;color:var(--indigo);font-family:monospace">TOTAL REPORTS</div>
+      <div id="p-sTotal" style="font-size:26px;font-weight:900;color:var(--indigo);font-family:monospace">0</div>
+    </div>
+  </div>
+
+  <div class="card" style="overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+      padding:12px 14px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;font-size:13px;color:var(--red)">Problem Reports</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="p-fStatus" class="inp" style="width:auto;font-size:11px" onchange="renderProblems()">
+          <option value="all">All Status</option>
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Resolved">Resolved</option>
+        </select>
+        <select id="p-fSev" class="inp" style="width:auto;font-size:11px" onchange="renderProblems()">
+          <option value="all">All Severity</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+        <input id="p-search" class="inp" style="width:140px;font-size:11px" placeholder="🔍 Search..." oninput="renderProblems()"/>
+        <span id="p-count" style="font-size:11px;color:var(--gray);font-family:monospace">0 records</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Type</th><th>Description</th>
+          <th>Severity</th><th>Responsible</th><th>Status</th>
+          <th class="no-print">Actions</th>
+        </tr></thead>
+        <tbody id="probTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODALS ═══════════════════ -->
+
+<!-- Sales detail -->
+<div id="salesDetailModal" class="overlay hidden">
+  <div class="modal-box" style="max-width:640px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;color:var(--blue)">🚚 Uncarried Goods — Full Detail</span>
+      <button onclick="closeModal('salesDetailModal')" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:22px">&times;</button>
+    </div>
+    <div id="salesDetailBody" style="padding:18px;max-height:75vh;overflow-y:auto"></div>
+    <div style="padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px" class="no-print">
+      <button id="salesDetailPrintBtn" class="btn btn-blue btn-sm">🖨️ Print This Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sales edit -->
+<div id="salesEditModal" class="overlay hidden">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;color:var(--blue)">✏️ Edit Sales Record</span>
+      <button onclick="closeModal('salesEditModal')" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:22px">&times;</button>
+    </div>
+    <div style="padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <input type="hidden" id="se-id"/>
+      <div><label class="lbl">Customer Name</label><input id="se-custname" class="inp"/></div>
+      <div><label class="lbl">Phone</label><input id="se-phone" class="inp"/></div>
+      <div><label class="lbl">Invoice</label><input id="se-invoice" class="inp"/></div>
+      <div><label class="lbl">Date</label><input id="se-date" type="date" class="inp"/></div>
+      <div><label class="lbl">Reason</label>
+        <select id="se-reason" class="inp">
+          <option>Car too small</option><option>Customer forgot</option>
+          <option>No transport available</option><option>Payment incomplete</option>
+          <option>Stock discrepancy</option><option>Other</option>
+        </select>
+      </div>
+      <div><label class="lbl">Status</label>
+        <select id="se-status" class="inp">
+          <option>Pending</option><option>Picked Up</option>
+        </select>
+      </div>
+    </div>
+    <div style="padding:0 18px 18px">
+      <button onclick="saveSalesEdit()" class="btn btn-blue" style="width:100%;justify-content:center">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Inventory detail -->
+<div id="invDetailModal" class="overlay hidden">
+  <div class="modal-box" style="max-width:640px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;color:var(--green)">📦 Stock Entry — Full Detail</span>
+      <button onclick="closeModal('invDetailModal')" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:22px">&times;</button>
+    </div>
+    <div id="invDetailBody" style="padding:18px;max-height:75vh;overflow-y:auto"></div>
+    <div style="padding:12px 18px;border-top:1px solid var(--border)" class="no-print">
+      <button id="invDetailPrintBtn" class="btn btn-green btn-sm">🖨️ Print This Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- Credit detail -->
+<div id="creditDetailModal" class="overlay hidden">
+  <div class="modal-box" style="max-width:640px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;color:var(--yellow)">💳 Credit Record — Full Detail</span>
+      <button onclick="closeModal('creditDetailModal')" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:22px">&times;</button>
+    </div>
+    <div id="creditDetailBody" style="padding:18px;max-height:75vh;overflow-y:auto"></div>
+    <div style="padding:12px 18px;border-top:1px solid var(--border)" class="no-print">
+      <button id="creditDetailPrintBtn" class="btn btn-yellow btn-sm">🖨️ Print This Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- Credit edit -->
+<div id="creditEditModal" class="overlay hidden">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;color:var(--yellow)">✏️ Edit Credit Record</span>
+      <button onclick="closeModal('creditEditModal')" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:22px">&times;</button>
+    </div>
+    <div style="padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <input type="hidden" id="ce-id"/>
+      <div><label class="lbl">Customer Name</label><input id="ce-name" class="inp"/></div>
+      <div><label class="lbl">Account</label><input id="ce-acct" class="inp"/></div>
+      <div><label class="lbl">Phone</label><input id="ce-phone" class="inp"/></div>
+      <div><label class="lbl">Requested (RWF)</label><input id="ce-requested" type="number" class="inp"/></div>
+      <div><label class="lbl">Limit (RWF)</label><input id="ce-limit" type="number" class="inp"/></div>
+      <div><label class="lbl">Balance (RWF)</label><input id="ce-balance" type="number" class="inp"/></div>
+      <div><label class="lbl">Due Date</label><input id="ce-duedate" type="date" class="inp"/></div>
+      <div><label class="lbl">Status</label>
+        <select id="ce-status" class="inp">
+          <option>Pending Approval</option><option>Approved</option><option>Rejected</option>
+        </select>
+      </div>
+    </div>
+    <div style="padding:0 18px 18px">
+      <button onclick="saveCreditEdit()" class="btn btn-yellow" style="width:100%;justify-content:center">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Problem edit -->
+<div id="probEditModal" class="overlay hidden">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;color:var(--red)">✏️ Edit Problem Report</span>
+      <button onclick="closeModal('probEditModal')" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:22px">&times;</button>
+    </div>
+    <div style="padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <input type="hidden" id="pe-id"/>
+      <div><label class="lbl">Date</label><input id="pe-date" type="date" class="inp"/></div>
+      <div><label class="lbl">Type</label>
+        <select id="pe-type" class="inp">
+          <option>Delivery Delay</option><option>System Error</option><option>Stock Mismatch</option>
+          <option>Customer Complaint</option><option>Payment Issue</option>
+          <option>Staff Issue</option><option>Supplier Problem</option>
+          <option>Transport Breakdown</option><option>Other</option>
+        </select>
+      </div>
+      <div><label class="lbl">Severity</label>
+        <select id="pe-severity" class="inp">
+          <option value="High">🔴 High</option><option value="Medium">🟡 Medium</option><option value="Low">🟢 Low</option>
+        </select>
+      </div>
+      <div><label class="lbl">Person Responsible</label><input id="pe-person" class="inp"/></div>
+      <div><label class="lbl">Status</label>
+        <select id="pe-status" class="inp">
+          <option>Open</option><option>In Progress</option><option>Resolved</option>
+        </select>
+      </div>
+      <div style="grid-column:1/-1">
+        <label class="lbl">Description</label>
+        <textarea id="pe-desc" class="inp" rows="3"></textarea>
+      </div>
+    </div>
+    <div style="padding:0 18px 18px">
+      <button onclick="saveProbEdit()" class="btn" style="background:var(--red);color:#fff;width:100%;justify-content:center">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div id="changePwdModal" class="overlay hidden">
+  <div class="modal-box" style="max-width:400px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:700;color:var(--gold)">🔑 Change Password</span>
+      <button onclick="closeModal('changePwdModal')" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:22px">&times;</button>
+    </div>
+    <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:11px;padding:8px 12px;background:var(--gold-dim);border-radius:8px;color:var(--gold)">
+        Changing password for: <strong id="cpRole"></strong>
+      </div>
+      <div>
+        <label class="lbl">Current Password</label>
+        <div style="position:relative">
+          <input id="cp-current" type="password" class="inp" placeholder="Enter current password" style="padding-right:36px"/>
+          <button onclick="togglePwd('cp-current',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray);font-size:13px">👁</button>
+        </div>
+      </div>
+      <div>
+        <label class="lbl">New Password (min 6 characters)</label>
+        <div style="position:relative">
+          <input id="cp-new" type="password" class="inp" placeholder="New password" style="padding-right:36px"/>
+          <button onclick="togglePwd('cp-new',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray);font-size:13px">👁</button>
+        </div>
+      </div>
+      <div>
+        <label class="lbl">Confirm New Password</label>
+        <input id="cp-confirm" type="password" class="inp" placeholder="Repeat new password"/>
+      </div>
+      <div id="cp-err" style="display:none;font-size:11px;padding:8px 12px;background:var(--red-dim);color:var(--red);border-radius:8px"></div>
+      <div id="cp-ok" style="display:none;font-size:11px;padding:8px 12px;background:var(--green-dim);color:var(--green);border-radius:8px"></div>
+      <button onclick="doChangePwd()" class="btn btn-gold" style="width:100%;justify-content:center;font-size:13px">✅ Update Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toastWrap" style="position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px" class="no-print"></div>
+
+<!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
+<script>
+// ══════════════ CREDENTIALS ══════════════
+var CREDS_KEY='nrt_creds_v2';
+function defaultCreds(){return{admin:'admin123',sales:'sales456',inventory:'stock789',credit:'credit111',problems:'problem222'};}
+function getCreds(){try{var c=localStorage.getItem(CREDS_KEY);return c?JSON.parse(c):defaultCreds();}catch(e){return defaultCreds();}}
+function saveCreds(c){localStorage.setItem(CREDS_KEY,JSON.stringify(c));}
+
+var ROLE_LABELS={admin:'👑 Team Leader',sales:'🚚 Logistics & Sales',inventory:'📦 Inventory',credit:'💳 Credit Management',problems:'⚠️ Problem Tracking'};
+
+var NAV={
+  admin:[{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'sales',icon:'🚚',label:'Sales Records'},{id:'inventory',icon:'📦',label:'Inventory'},{id:'credit',icon:'💳',label:'Credit'},{id:'problems',icon:'⚠️',label:'Problems'}],
+  sales:[{id:'sales',icon:'🚚',label:'Uncarried Goods'}],
+  inventory:[{id:'inventory',icon:'📦',label:'Stock In'}],
+  credit:[{id:'credit',icon:'💳',label:'Credit Management'}],
+  problems:[{id:'problems',icon:'⚠️',label:'Problem Tracking'}]
+};
+
+// ══════════════ DATA ══════════════
+var currentRole=null,currentView=null;
+function lsGet(k){try{var d=localStorage.getItem(k);return d?JSON.parse(d):[]; }catch(e){return[];}}
+function lsSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
+
+var salesData=lsGet('nrt_sales_v2');
+var inventoryData=lsGet('nrt_inventory_v2');
+var creditData=lsGet('nrt_credit_v2');
+var problemsData=lsGet('nrt_problems_v2');
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function fmtN(n){return Number(n||0).toLocaleString();}
+function fmtRWF(n){return 'RWF '+Number(n||0).toLocaleString();}
+function today(){return new Date().toISOString().slice(0,10);}
+function nowISO(){return new Date().toISOString();}
+function escH(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ══════════════ AUTH ══════════════
+function doLogin(){
+  var role=document.getElementById('loginRole').value;
+  var pass=document.getElementById('loginPass').value;
+  var errEl=document.getElementById('loginErr');
+  errEl.style.display='none';
+  if(!role){showLoginErr('Please select your department.');return;}
+  if(!pass){showLoginErr('Please enter your password.');return;}
+  var creds=getCreds();
+  if(creds[role]!==pass){showLoginErr('Incorrect password. Please try again.');return;}
+  currentRole=role;
+  document.getElementById('loginPass').value='';
+  startApp();
+}
+function showLoginErr(m){var e=document.getElementById('loginErr');e.textContent=m;e.style.display='block';}
+
+function doLogout(){
+  currentRole=null;currentView=null;
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('loginView').style.display='flex';
+  document.getElementById('loginRole').value='';
+  document.getElementById('loginErr').style.display='none';
+}
+
+function startApp(){
+  document.getElementById('loginView').style.display='none';
+  document.getElementById('appShell').style.display='flex';
+  document.getElementById('sidebarRole').textContent=ROLE_LABELS[currentRole]||currentRole;
+  // Build nav
+  var nav=document.getElementById('sidebarNav');
+  nav.innerHTML=(NAV[currentRole]||[]).map(function(it){
+    return '<div class="nav-item" data-view="'+it.id+'" onclick="switchView(\''+it.id+'\')">'
+      +'<span>'+it.icon+'</span><span>'+it.label+'</span></div>';
+  }).join('');
+  // Date
+  document.getElementById('topbarDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+  // Default view
+  var first=(NAV[currentRole]||[])[0];
+  if(first) switchView(first.id);
+}
+
+function switchView(id){
+  currentView=id;
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  var el=document.getElementById('view-'+id);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active-nav',n.dataset.view===id);});
+  var titles={dashboard:'📊 Dashboard',sales:'🚚 Logistics & Sales',inventory:'📦 Inventory',credit:'💳 Credit Management',problems:'⚠️ Problem Tracking'};
+  document.getElementById('topbarTitle').textContent=titles[id]||'NRT Portal';
+  if(id==='dashboard')renderDashboard();
+  else if(id==='sales'){setDef('s-date');renderSales();}
+  else if(id==='inventory'){setDef('i-date');renderInventory();}
+  else if(id==='credit')renderCredit();
+  else if(id==='problems'){setDef('p-date');renderProblems();}
+  if(window.innerWidth<768)closeSidebar();
+}
+function setDef(id){var el=document.getElementById(id);if(el&&!el.value)el.value=today();}
+
+// ══════════════ SIDEBAR / UI ══════════════
+function toggleSidebar(){
+  var s=document.getElementById('sidebar');
+  var o=document.getElementById('sbOverlay');
+  var open=s.classList.toggle('open');
+  o.style.display=open?'block':'none';
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').style.display='none';
+}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function togglePwd(id,btn){
+  var el=document.getElementById(id);
+  if(el.type==='password'){el.type='text';btn.textContent='🙈';}
+  else{el.type='password';btn.textContent='👁';}
+}
+
+// ══════════════ GOODS LIST ENGINE ══════════════
+// listId = container div id, emptyId = empty-state div id
+// prefixIds: tItems, tQty, tVal — parent prefix (s-, i-, c-)
+function addGoodsRow(listId, emptyId){
+  var container=document.getElementById(listId);
+  var emptyEl=document.getElementById(emptyId);
+  var prefix=listId==='s-glist'?'s-':listId==='i-glist'?'i-':'c-';
+
+  // Show header
+  var hdr=document.getElementById(prefix+'gheader');
+  if(hdr){hdr.style.display='grid';}
+
+  if(emptyEl) emptyEl.style.display='none';
+  var row=document.createElement('div');
+  row.className='goods-row';
+
+  var idx=Date.now();
+  row.innerHTML=
+    '<input class="inp g-name" placeholder="Product / SKU name" style="font-size:12px" oninput="recalcGoods(\''+listId+'\',\''+prefix+'\')"/>'
+   +'<input class="inp g-qty" type="number" min="1" placeholder="Qty" style="font-size:12px;text-align:center" oninput="recalcGoods(\''+listId+'\',\''+prefix+'\')" onchange="calcRowTotal(this)"/>'
+   +'<input class="inp g-price" type="number" min="0" placeholder="0" style="font-size:12px;text-align:right" oninput="calcRowTotal(this);recalcGoods(\''+listId+'\',\''+prefix+'\')"/>'
+   +'<input class="inp g-total" type="number" placeholder="0" style="font-size:12px;text-align:right;color:var(--gold);font-weight:700" readonly tabindex="-1"/>'
+   +'<button onclick="removeGoodsRow(this,\''+listId+'\',\''+emptyId+'\',\''+prefix+'\')" class="btn btn-red btn-xs" style="flex-shrink:0;justify-content:center">✕</button>';
+  container.appendChild(row);
+  recalcGoods(listId,prefix);
+}
+
+function calcRowTotal(el){
+  var row=el.closest('.goods-row');
+  if(!row)return;
+  var qty=parseFloat(row.querySelector('.g-qty').value)||0;
+  var price=parseFloat(row.querySelector('.g-price').value)||0;
+  row.querySelector('.g-total').value=(qty*price)||'';
+}
+
+function removeGoodsRow(btn,listId,emptyId,prefix){
+  btn.closest('.goods-row').remove();
+  recalcGoods(listId,prefix);
+  var container=document.getElementById(listId);
+  var emptyEl=document.getElementById(emptyId);
+  if(container.children.length===0){
+    if(emptyEl)emptyEl.style.display='block';
+    var hdr=document.getElementById(prefix+'gheader');
+    if(hdr)hdr.style.display='none';
+    var totals=document.getElementById(prefix+'gtotals');
+    if(totals)totals.style.display='none';
+  }
+}
+
+function recalcGoods(listId,prefix){
+  var container=document.getElementById(listId);
+  var rows=container.querySelectorAll('.goods-row');
+  var totalQty=0,totalVal=0,count=rows.length;
+  rows.forEach(function(r){
+    var qty=parseFloat(r.querySelector('.g-qty').value)||0;
+    var price=parseFloat(r.querySelector('.g-price').value)||0;
+    totalQty+=qty; totalVal+=qty*price;
+    r.querySelector('.g-total').value=qty&&price?(qty*price).toFixed(0):'';
+  });
+  var totDiv=document.getElementById(prefix+'gtotals');
+  if(totDiv){
+    totDiv.style.display=count?'flex':'none';
+    var ti=document.getElementById(prefix+'tItems');if(ti)ti.textContent=count;
+    var tq=document.getElementById(prefix+'tQty');if(tq)tq.textContent=fmtN(totalQty);
+    var tv=document.getElementById(prefix+'tVal');if(tv)tv.textContent=fmtRWF(totalVal);
+  }
+}
+
+function collectGoods(listId){
+  var rows=document.getElementById(listId).querySelectorAll('.goods-row');
+  var items=[];
+  rows.forEach(function(r){
+    var name=r.querySelector('.g-name').value.trim();
+    var qty=parseFloat(r.querySelector('.g-qty').value)||0;
+    var price=parseFloat(r.querySelector('.g-price').value)||0;
+    if(name||qty) items.push({name:name,qty:qty,price:price,total:qty*price});
+  });
+  return items;
+}
+
+function clearGoodsList(listId,emptyId,prefix){
+  document.getElementById(listId).innerHTML='';
+  var e=document.getElementById(emptyId);if(e)e.style.display='block';
+  var hdr=document.getElementById(prefix+'gheader');if(hdr)hdr.style.display='none';
+  var totDiv=document.getElementById(prefix+'gtotals');if(totDiv)totDiv.style.display='none';
+}
+
+// ══════════════ GOODS TABLE HTML ══════════════
+function goodsTableHtml(goods, accentColor){
+  if(!goods||!goods.length) return '<div style="font-size:11px;color:var(--gray);padding:8px">No items recorded.</div>';
+  var totalQty=goods.reduce(function(a,g){return a+g.qty;},0);
+  var totalVal=goods.reduce(function(a,g){return a+g.total;},0);
+  return '<table style="margin-top:6px;font-size:12px">'
+    +'<thead><tr><th style="padding:7px 10px;background:var(--bg4);border:1px solid var(--border)">#</th>'
+    +'<th style="padding:7px 10px;background:var(--bg4);border:1px solid var(--border)">Product / SKU</th>'
+    +'<th style="padding:7px 10px;background:var(--bg4);border:1px solid var(--border);text-align:right">Qty</th>'
+    +'<th style="padding:7px 10px;background:var(--bg4);border:1px solid var(--border);text-align:right">Unit Price</th>'
+    +'<th style="padding:7px 10px;background:var(--bg4);border:1px solid var(--border);text-align:right">Total</th>'
+    +'</tr></thead><tbody>'
+    +goods.map(function(g,i){
+      return '<tr>'
+       +'<td style="padding:7px 10px;border:1px solid var(--border);color:var(--gray)">'+(i+1)+'</td>'
+       +'<td style="padding:7px 10px;border:1px solid var(--border);font-weight:600">'+escH(g.name)+'</td>'
+       +'<td style="padding:7px 10px;border:1px solid var(--border);text-align:right;font-family:monospace">'+fmtN(g.qty)+'</td>'
+       +'<td style="padding:7px 10px;border:1px solid var(--border);text-align:right;font-family:monospace">'+fmtRWF(g.price)+'</td>'
+       +'<td style="padding:7px 10px;border:1px solid var(--border);text-align:right;font-family:monospace;color:'+(accentColor||'var(--gold)')+'">'+fmtRWF(g.total)+'</td>'
+       +'</tr>';
+    }).join('')
+    +'<tr><td colspan="2" style="padding:7px 10px;border:1px solid var(--border);font-weight:700">TOTAL</td>'
+    +'<td style="padding:7px 10px;border:1px solid var(--border);text-align:right;font-family:monospace;font-weight:700">'+fmtN(totalQty)+'</td>'
+    +'<td style="padding:7px 10px;border:1px solid var(--border)"></td>'
+    +'<td style="padding:7px 10px;border:1px solid var(--border);text-align:right;font-family:monospace;font-weight:700;color:'+(accentColor||'var(--gold)')+'">'+fmtRWF(totalVal)+'</td>'
+    +'</tr>'
+    +'</tbody></table>';
+}
+
+// ══════════════ SALES MODULE ══════════════
+function submitSales(){
+  var custname=document.getElementById('s-custname').value.trim();
+  var invoice=document.getElementById('s-invoice').value.trim();
+  var date=document.getElementById('s-date').value;
+  var reason=document.getElementById('s-reason').value;
+  var goods=collectGoods('s-glist');
+  if(!custname||!invoice||!date||!reason){toast('Please fill all required fields (*)','err');return;}
+  if(!goods.length){toast('Please add at least one good item.','err');return;}
+  var totalQty=goods.reduce(function(a,g){return a+g.qty;},0);
+  var totalVal=goods.reduce(function(a,g){return a+g.total;},0);
+  salesData.unshift({
+    id:uid(),date:date,custname:custname,
+    phone:document.getElementById('s-phone').value.trim(),
+    invoice:invoice,goods:goods,totalQty:totalQty,totalVal:totalVal,
+    reason:reason,status:document.getElementById('s-status').value,createdAt:nowISO()
+  });
+  lsSet('nrt_sales_v2',salesData);
+  ['s-custname','s-phone','s-invoice'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('s-reason').value='';
+  document.getElementById('s-status').value='Pending';
+  clearGoodsList('s-glist','s-gempty','s-');
+  document.getElementById('s-date').value=today();
+  toast('Entry saved!','ok');
+  renderSales();
+}
+
+function renderSales(){
+  var q=(document.getElementById('s-search').value||'').toLowerCase();
+  var sf=document.getElementById('s-fStatus').value;
+  var list=salesData.filter(function(r){
+    var m=(r.custname+r.invoice+(r.phone||'')+r.reason).toLowerCase().includes(q);
+    var s=sf==='all'||r.status===sf;
+    return m&&s;
+  });
+  document.getElementById('s-count').textContent=list.length+' records';
+  var tbody=document.getElementById('salesTbody');
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:28px;color:var(--gray)">No records yet. Add an entry above.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=list.map(function(r){
+    var sb=r.status==='Picked Up'?'<span class="badge b-green">Picked Up</span>':'<span class="badge b-orange">Pending</span>';
+    var gSummary=(r.goods||[]).map(function(g){return escH(g.name)+(g.qty?'×'+g.qty:'');}).join(', ');
+    if(gSummary.length>45)gSummary=gSummary.slice(0,45)+'…';
+    return '<tr>'
+      +'<td class="mono" style="font-size:11px">'+r.date+'</td>'
+      +'<td style="font-weight:600">'+escH(r.custname)+'</td>'
+      +'<td style="font-size:11px;color:var(--gray)">'+escH(r.phone||'—')+'</td>'
+      +'<td class="mono" style="font-size:11px;color:var(--blue)">'+escH(r.invoice)+'</td>'
+      +'<td style="font-size:11px">'+gSummary+'</td>'
+      +'<td class="mono" style="font-size:11px">'+fmtN(r.totalQty||0)+'</td>'
+      +'<td class="mono" style="font-size:11px;color:var(--blue)">'+fmtRWF(r.totalVal||0)+'</td>'
+      +'<td style="font-size:11px">'+escH(r.reason)+'</td>'
+      +'<td>'+sb+'</td>'
+      +'<td class="no-print"><div style="display:flex;gap:4px">'
+        +'<button class="btn btn-outline btn-xs" onclick="viewSalesDetail(\''+r.id+'\')">👁</button>'
+        +'<button class="btn btn-outline btn-xs" onclick="openSalesEdit(\''+r.id+'\')">✏️</button>'
+        +'<button class="btn btn-red btn-xs" onclick="deleteSales(\''+r.id+'\')">✕</button>'
+      +'</div></td>'
+    +'</tr>';
+  }).join('');
+}
+
+function viewSalesDetail(id){
+  var r=salesData.find(function(x){return x.id===id;});if(!r)return;
+  var body=document.getElementById('salesDetailBody');
+  body.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:12px">'
+    +'<div><div class="lbl">Customer</div><div style="font-weight:700">'+escH(r.custname)+'</div></div>'
+    +'<div><div class="lbl">Phone</div><div>'+escH(r.phone||'—')+'</div></div>'
+    +'<div><div class="lbl">Invoice</div><div class="mono" style="color:var(--blue)">'+escH(r.invoice)+'</div></div>'
+    +'<div><div class="lbl">Date</div><div class="mono">'+r.date+'</div></div>'
+    +'<div><div class="lbl">Reason</div><div>'+escH(r.reason)+'</div></div>'
+    +'<div><div class="lbl">Status</div><div>'+(r.status==='Picked Up'?'<span class="badge b-green">Picked Up</span>':'<span class="badge b-orange">Pending</span>')+'</div></div>'
+    +'</div>'
+    +'<div class="lbl">Goods Left Behind</div>'
+    +goodsTableHtml(r.goods,'var(--blue)');
+  document.getElementById('salesDetailPrintBtn').onclick=function(){printSingleRecord('salesDetailBody','Uncarried Goods — '+r.custname+' / '+r.invoice,r.date);};
+  document.getElementById('salesDetailModal').classList.remove('hidden');
+}
+
+function openSalesEdit(id){
+  var r=salesData.find(function(x){return x.id===id;});if(!r)return;
+  document.getElementById('se-id').value=r.id;
+  document.getElementById('se-custname').value=r.custname;
+  document.getElementById('se-phone').value=r.phone||'';
+  document.getElementById('se-invoice').value=r.invoice;
+  document.getElementById('se-date').value=r.date;
+  document.getElementById('se-reason').value=r.reason;
+  document.getElementById('se-status').value=r.status;
+  document.getElementById('salesEditModal').classList.remove('hidden');
+}
+function saveSalesEdit(){
+  var id=document.getElementById('se-id').value;
+  var r=salesData.find(function(x){return x.id===id;});if(!r)return;
+  r.custname=document.getElementById('se-custname').value.trim();
+  r.phone=document.getElementById('se-phone').value.trim();
+  r.invoice=document.getElementById('se-invoice').value.trim();
+  r.date=document.getElementById('se-date').value;
+  r.reason=document.getElementById('se-reason').value;
+  r.status=document.getElementById('se-status').value;
+  lsSet('nrt_sales_v2',salesData);
+  closeModal('salesEditModal');toast('Record updated.','ok');renderSales();
+  if(currentView==='dashboard')renderDashboard();
+}
+function deleteSales(id){
+  if(!confirm('Delete this record?'))return;
+  salesData=salesData.filter(function(r){return r.id!==id;});
+  lsSet('nrt_sales_v2',salesData);renderSales();
+  if(currentView==='dashboard')renderDashboard();
+  toast('Deleted.','ok');
+}
+
+// ══════════════ INVENTORY MODULE ══════════════
+function submitInventory(){
+  var date=document.getElementById('i-date').value;
+  var supplier=document.getElementById('i-supplier').value.trim();
+  var products=collectGoods('i-glist');
+  if(!date||!supplier){toast('Please fill all required fields (*)','err');return;}
+  if(!products.length){toast('Please add at least one product.','err');return;}
+  var totalQty=products.reduce(function(a,p){return a+p.qty;},0);
+  var totalVal=products.reduce(function(a,p){return a+p.total;},0);
+  inventoryData.unshift({
+    id:uid(),date:date,supplier:supplier,
+    batch:document.getElementById('i-batch').value.trim(),
+    location:document.getElementById('i-location').value.trim(),
+    notes:document.getElementById('i-notes').value.trim(),
+    products:products,totalQty:totalQty,totalVal:totalVal,createdAt:nowISO()
+  });
+  lsSet('nrt_inventory_v2',inventoryData);
+  ['i-supplier','i-batch','i-location','i-notes'].forEach(function(id){document.getElementById(id).value='';});
+  clearGoodsList('i-glist','i-gempty','i-');
+  document.getElementById('i-date').value=today();
+  toast('Stock entry saved!','ok');renderInventory();
+}
+
+function renderInventory(){
+  var q=(document.getElementById('i-search').value||'').toLowerCase();
+  var list=inventoryData.filter(function(r){
+    return (r.supplier+(r.batch||'')+(r.location||'')).toLowerCase().includes(q)
+      ||(r.products||[]).some(function(p){return p.name.toLowerCase().includes(q);});
+  });
+  document.getElementById('i-count').textContent=list.length+' records';
+  var totQty=inventoryData.reduce(function(a,r){return a+(r.totalQty||0);},0);
+  var totVal=inventoryData.reduce(function(a,r){return a+(r.totalVal||0);},0);
+  document.getElementById('i-sTot').textContent=inventoryData.length;
+  document.getElementById('i-sVal').textContent=fmtRWF(totVal);
+  var tbody=document.getElementById('invTbody');
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--gray)">No stock entries yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=list.map(function(r){
+    var prodSummary=(r.products||[]).map(function(p){return escH(p.name);}).join(', ');
+    if(prodSummary.length>45)prodSummary=prodSummary.slice(0,45)+'…';
+    return '<tr>'
+      +'<td class="mono" style="font-size:11px">'+r.date+'</td>'
+      +'<td style="font-weight:600">'+escH(r.supplier)+'</td>'
+      +'<td class="mono" style="font-size:11px">'+escH(r.batch||'—')+'</td>'
+      +'<td style="font-size:11px">'+escH(r.location||'—')+'</td>'
+      +'<td style="font-size:11px">'+prodSummary+'</td>'
+      +'<td class="mono" style="color:var(--green)">'+fmtN(r.totalQty||0)+'</td>'
+      +'<td class="mono" style="color:var(--green)">'+fmtRWF(r.totalVal||0)+'</td>'
+      +'<td class="no-print"><div style="display:flex;gap:4px">'
+        +'<button class="btn btn-outline btn-xs" onclick="viewInvDetail(\''+r.id+'\')">👁 View</button>'
+        +'<button class="btn btn-red btn-xs" onclick="deleteInv(\''+r.id+'\')">✕</button>'
+      +'</div></td>'
+    +'</tr>';
+  }).join('');
+}
+
+function viewInvDetail(id){
+  var r=inventoryData.find(function(x){return x.id===id;});if(!r)return;
+  var body=document.getElementById('invDetailBody');
+  body.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:12px">'
+    +'<div><div class="lbl">Supplier</div><div style="font-weight:700">'+escH(r.supplier)+'</div></div>'
+    +'<div><div class="lbl">Date</div><div class="mono">'+r.date+'</div></div>'
+    +'<div><div class="lbl">Batch</div><div class="mono">'+escH(r.batch||'—')+'</div></div>'
+    +'<div><div class="lbl">Location</div><div>'+escH(r.location||'—')+'</div></div>'
+    +(r.notes?'<div style="grid-column:1/-1"><div class="lbl">Notes</div><div>'+escH(r.notes)+'</div></div>':'' )
+    +'</div>'
+    +'<div class="lbl">Products Received</div>'
+    +goodsTableHtml(r.products,'var(--green)');
+  document.getElementById('invDetailPrintBtn').onclick=function(){printSingleRecord('invDetailBody','Stock-In Receipt — '+r.supplier,r.date);};
+  document.getElementById('invDetailModal').classList.remove('hidden');
+}
+
+function deleteInv(id){
+  if(!confirm('Delete this stock entry?'))return;
+  inventoryData=inventoryData.filter(function(r){return r.id!==id;});
+  lsSet('nrt_inventory_v2',inventoryData);renderInventory();
+  if(currentView==='dashboard')renderDashboard();toast('Deleted.','ok');
+}
+
+// ══════════════ CREDIT MODULE ══════════════
+function submitCredit(){
+  var name=document.getElementById('c-name').value.trim();
+  var acct=document.getElementById('c-acct').value.trim();
+  var req=parseFloat(document.getElementById('c-requested').value)||0;
+  if(!name||!acct||!req){toast('Please fill required fields (*).','err');return;}
+  var goods=collectGoods('c-glist');
+  var goodsTotal=goods.reduce(function(a,g){return a+g.total;},0);
+  creditData.unshift({
+    id:uid(),date:today(),name:name,acct:acct,
+    phone:document.getElementById('c-phone').value.trim(),
+    requested:req,
+    limit:parseFloat(document.getElementById('c-limit').value)||0,
+    balance:parseFloat(document.getElementById('c-balance').value)||0,
+    duedate:document.getElementById('c-duedate').value,
+    status:document.getElementById('c-status').value,
+    notes:document.getElementById('c-notes').value.trim(),
+    goods:goods,goodsTotal:goodsTotal,createdAt:nowISO()
+  });
+  lsSet('nrt_credit_v2',creditData);
+  ['c-name','c-acct','c-phone','c-notes'].forEach(function(id){document.getElementById(id).value='';});
+  ['c-requested','c-limit','c-balance'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('c-duedate').value='';
+  document.getElementById('c-status').value='Pending Approval';
+  clearGoodsList('c-glist','c-gempty','c-');
+  toast('Credit record saved!','ok');renderCredit();
+}
+
+function renderCredit(){
+  var q=(document.getElementById('c-search').value||'').toLowerCase();
+  var sf=document.getElementById('c-fStatus').value;
+  var list=creditData.filter(function(r){
+    var m=(r.name+r.acct+(r.phone||'')).toLowerCase().includes(q);
+    var s=sf==='all'||r.status===sf;
+    return m&&s;
+  });
+  document.getElementById('c-count').textContent=list.length+' records';
+  // Stats
+  var app=creditData.filter(function(r){return r.status==='Approved';}).reduce(function(a,r){return a+(r.limit||0);},0);
+  var bal=creditData.reduce(function(a,r){return a+(r.balance||0);},0);
+  var gt=creditData.reduce(function(a,r){return a+(r.goodsTotal||0);},0);
+  var pend=creditData.filter(function(r){return r.status==='Pending Approval';}).length;
+  document.getElementById('c-sApproved').textContent=fmtRWF(app);
+  document.getElementById('c-sBalance').textContent=fmtRWF(bal);
+  document.getElementById('c-sGoods').textContent=fmtRWF(gt);
+  document.getElementById('c-sPending').textContent=pend;
+  var tbody=document.getElementById('creditTbody');
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:28px;color:var(--gray)">No credit records yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=list.map(function(r){
+    var sb=r.status==='Approved'?'<span class="badge b-green">Approved</span>'
+         :r.status==='Rejected'?'<span class="badge b-red">Rejected</span>'
+         :'<span class="badge b-orange">Pending</span>';
+    var overdue=r.duedate&&r.duedate<today()&&r.status!=='Approved';
+    return '<tr>'
+      +'<td class="mono" style="font-size:11px">'+r.date+'</td>'
+      +'<td style="font-weight:600">'+escH(r.name)+'</td>'
+      +'<td class="mono" style="font-size:11px;color:var(--yellow)">'+escH(r.acct)+'</td>'
+      +'<td class="mono" style="font-size:11px">'+fmtRWF(r.requested)+'</td>'
+      +'<td class="mono" style="font-size:11px;color:var(--green)">'+fmtRWF(r.limit||0)+'</td>'
+      +'<td class="mono" style="font-size:11px;color:var(--red)">'+fmtRWF(r.balance||0)+'</td>'
+      +'<td class="mono" style="font-size:11px;color:var(--gold)">'+fmtRWF(r.goodsTotal||0)+'</td>'
+      +'<td class="mono" style="font-size:11px'+(overdue?';color:var(--red)':'')+'">'+escH(r.duedate||'—')+(overdue?' ⚠️':'')+'</td>'
+      +'<td>'+sb+'</td>'
+      +'<td class="no-print"><div style="display:flex;gap:4px">'
+        +'<button class="btn btn-outline btn-xs" onclick="viewCreditDetail(\''+r.id+'\')">👁</button>'
+        +'<button class="btn btn-outline btn-xs" onclick="openCreditEdit(\''+r.id+'\')">✏️</button>'
+        +'<button class="btn btn-red btn-xs" onclick="deleteCredit(\''+r.id+'\')">✕</button>'
+      +'</div></td>'
+    +'</tr>';
+  }).join('');
+}
+
+function viewCreditDetail(id){
+  var r=creditData.find(function(x){return x.id===id;});if(!r)return;
+  var body=document.getElementById('creditDetailBody');
+  var sb=r.status==='Approved'?'<span class="badge b-green">Approved</span>'
+       :r.status==='Rejected'?'<span class="badge b-red">Rejected</span>'
+       :'<span class="badge b-orange">Pending Approval</span>';
+  body.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;font-size:12px">'
+    +'<div><div class="lbl">Customer</div><div style="font-weight:700">'+escH(r.name)+'</div></div>'
+    +'<div><div class="lbl">Account No.</div><div class="mono" style="color:var(--yellow)">'+escH(r.acct)+'</div></div>'
+    +'<div><div class="lbl">Phone</div><div>'+escH(r.phone||'—')+'</div></div>'
+    +'<div><div class="lbl">Date</div><div class="mono">'+r.date+'</div></div>'
+    +'<div><div class="lbl">Credit Requested</div><div class="mono">'+fmtRWF(r.requested)+'</div></div>'
+    +'<div><div class="lbl">Approved Limit</div><div class="mono" style="color:var(--green)">'+fmtRWF(r.limit||0)+'</div></div>'
+    +'<div><div class="lbl">Outstanding Balance</div><div class="mono" style="color:var(--red)">'+fmtRWF(r.balance||0)+'</div></div>'
+    +'<div><div class="lbl">Payment Due Date</div><div class="mono">'+escH(r.duedate||'—')+'</div></div>'
+    +'<div><div class="lbl">Status</div><div>'+sb+'</div></div>'
+    +(r.notes?'<div><div class="lbl">Notes</div><div>'+escH(r.notes)+'</div></div>':'' )
+    +'</div>'
+    +'<div class="lbl" style="margin-bottom:6px;color:var(--yellow)">Goods Taken on Credit</div>'
+    +goodsTableHtml(r.goods,'var(--yellow)');
+  document.getElementById('creditDetailPrintBtn').onclick=function(){printSingleRecord('creditDetailBody','Credit Record — '+r.name+' / '+r.acct,r.date);};
+  document.getElementById('creditDetailModal').classList.remove('hidden');
+}
+
+function openCreditEdit(id){
+  var r=creditData.find(function(x){return x.id===id;});if(!r)return;
+  document.getElementById('ce-id').value=r.id;
+  document.getElementById('ce-name').value=r.name;
+  document.getElementById('ce-acct').value=r.acct;
+  document.getElementById('ce-phone').value=r.phone||'';
+  document.getElementById('ce-requested').value=r.requested;
+  document.getElementById('ce-limit').value=r.limit||0;
+  document.getElementById('ce-balance').value=r.balance||0;
+  document.getElementById('ce-duedate').value=r.duedate||'';
+  document.getElementById('ce-status').value=r.status;
+  document.getElementById('creditEditModal').classList.remove('hidden');
+}
+function saveCreditEdit(){
+  var id=document.getElementById('ce-id').value;
+  var r=creditData.find(function(x){return x.id===id;});if(!r)return;
+  r.name=document.getElementById('ce-name').value.trim();
+  r.acct=document.getElementById('ce-acct').value.trim();
+  r.phone=document.getElementById('ce-phone').value.trim();
+  r.requested=parseFloat(document.getElementById('ce-requested').value)||0;
+  r.limit=parseFloat(document.getElementById('ce-limit').value)||0;
+  r.balance=parseFloat(document.getElementById('ce-balance').value)||0;
+  r.duedate=document.getElementById('ce-duedate').value;
+  r.status=document.getElementById('ce-status').value;
+  lsSet('nrt_credit_v2',creditData);
+  closeModal('creditEditModal');toast('Record updated.','ok');renderCredit();
+  if(currentView==='dashboard')renderDashboard();
+}
+function deleteCredit(id){
+  if(!confirm('Delete this credit record?'))return;
+  creditData=creditData.filter(function(r){return r.id!==id;});
+  lsSet('nrt_credit_v2',creditData);renderCredit();
+  if(currentView==='dashboard')renderDashboard();toast('Deleted.','ok');
+}
+
+// ══════════════ PROBLEMS MODULE ══════════════
+function submitProblem(){
+  var date=document.getElementById('p-date').value;
+  var type=document.getElementById('p-type').value;
+  var desc=document.getElementById('p-desc').value.trim();
+  if(!date||!type||!desc){toast('Please fill all required fields (*)','err');return;}
+  problemsData.unshift({
+    id:uid(),date:date,type:type,desc:desc,
+    severity:document.getElementById('p-severity').value,
+    person:document.getElementById('p-person').value.trim(),
+    status:document.getElementById('p-status').value,createdAt:nowISO()
+  });
+  lsSet('nrt_problems_v2',problemsData);
+  document.getElementById('p-type').value='';
+  document.getElementById('p-desc').value='';
+  document.getElementById('p-person').value='';
+  document.getElementById('p-severity').value='Medium';
+  document.getElementById('p-status').value='Open';
+  document.getElementById('p-date').value=today();
+  toast('Problem report submitted!','ok');renderProblems();
+}
+
+function renderProblems(){
+  var q=(document.getElementById('p-search').value||'').toLowerCase();
+  var sf=document.getElementById('p-fStatus').value;
+  var sv=document.getElementById('p-fSev').value;
+  var list=problemsData.filter(function(r){
+    var m=(r.type+r.desc+(r.person||'')).toLowerCase().includes(q);
+    var s=sf==='all'||r.status===sf;
+    var v=sv==='all'||r.severity===sv;
+    return m&&s&&v;
+  });
+  document.getElementById('p-count').textContent=list.length+' records';
+  var open=problemsData.filter(function(r){return r.status==='Open';}).length;
+  var high=problemsData.filter(function(r){return r.severity==='High';}).length;
+  var res=problemsData.filter(function(r){return r.status==='Resolved';}).length;
+  document.getElementById('p-sOpen').textContent=open;
+  document.getElementById('p-sHigh').textContent=high;
+  document.getElementById('p-sResolved').textContent=res;
+  document.getElementById('p-sTotal').textContent=problemsData.length;
+  var tbody=document.getElementById('probTbody');
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--gray)">No problem reports yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=list.map(function(r){
+    var sev=r.severity==='High'?'<span class="badge b-red">🔴 High</span>'
+          :r.severity==='Medium'?'<span class="badge b-orange">🟡 Medium</span>'
+          :'<span class="badge b-green">🟢 Low</span>';
+    var st=r.status==='Resolved'?'<span class="badge b-green">Resolved</span>'
+          :r.status==='In Progress'?'<span class="badge b-blue">In Progress</span>'
+          :'<span class="badge b-red">Open</span>';
+    var ds=r.desc.length>55?r.desc.slice(0,55)+'…':r.desc;
+    return '<tr>'
+      +'<td class="mono" style="font-size:11px">'+r.date+'</td>'
+      +'<td style="font-weight:600;font-size:12px">'+escH(r.type)+'</td>'
+      +'<td style="font-size:11px" title="'+escH(r.desc)+'">'+escH(ds)+'</td>'
+      +'<td>'+sev+'</td>'
+      +'<td style="font-size:11px">'+escH(r.person||'—')+'</td>'
+      +'<td>'+st+'</td>'
+      +'<td class="no-print"><div style="display:flex;gap:4px">'
+        +'<button class="btn btn-outline btn-xs" onclick="openProbEdit(\''+r.id+'\')">✏️</button>'
+        +'<button class="btn btn-red btn-xs" onclick="deleteProb(\''+r.id+'\')">✕</button>'
+      +'</div></td>'
+    +'</tr>';
+  }).join('');
+}
+
+function openProbEdit(id){
+  var r=problemsData.find(function(x){return x.id===id;});if(!r)return;
+  document.getElementById('pe-id').value=r.id;
+  document.getElementById('pe-date').value=r.date;
+  document.getElementById('pe-type').value=r.type;
+  document.getElementById('pe-severity').value=r.severity;
+  document.getElementById('pe-person').value=r.person||'';
+  document.getElementById('pe-status').value=r.status;
+  document.getElementById('pe-desc').value=r.desc;
+  document.getElementById('probEditModal').classList.remove('hidden');
+}
+function saveProbEdit(){
+  var id=document.getElementById('pe-id').value;
+  var r=problemsData.find(function(x){return x.id===id;});if(!r)return;
+  r.date=document.getElementById('pe-date').value;
+  r.type=document.getElementById('pe-type').value;
+  r.severity=document.getElementById('pe-severity').value;
+  r.person=document.getElementById('pe-person').value.trim();
+  r.status=document.getElementById('pe-status').value;
+  r.desc=document.getElementById('pe-desc').value.trim();
+  lsSet('nrt_problems_v2',problemsData);
+  closeModal('probEditModal');toast('Updated.','ok');renderProblems();
+  if(currentView==='dashboard')renderDashboard();
+}
+function deleteProb(id){
+  if(!confirm('Delete this report?'))return;
+  problemsData=problemsData.filter(function(r){return r.id!==id;});
+  lsSet('nrt_problems_v2',problemsData);renderProblems();
+  if(currentView==='dashboard')renderDashboard();toast('Deleted.','ok');
+}
+
+// ══════════════ DASHBOARD ══════════════
+function renderDashboard(){
+  var pending=salesData.filter(function(r){return r.status==='Pending';}).length;
+  var stockQty=inventoryData.reduce(function(a,r){return a+(r.totalQty||0);},0);
+  var appCredit=creditData.filter(function(r){return r.status==='Approved';}).reduce(function(a,r){return a+(r.limit||0);},0);
+  var openProbs=problemsData.filter(function(r){return r.status==='Open';}).length;
+  document.getElementById('ds-sales').textContent=pending;
+  document.getElementById('ds-inv').textContent=fmtN(stockQty);
+  document.getElementById('ds-credit').textContent=fmtRWF(appCredit);
+  document.getElementById('ds-prob').textContent=openProbs;
+  renderDashTable();
+}
+
+function renderDashTable(){
+  var filter=document.getElementById('dashFilter').value;
+  var rows=[];
+  if(filter==='all'||filter==='sales') salesData.forEach(function(r){
+    var gt=(r.goods||[]).reduce(function(a,g){return a+g.total;},0);
+    rows.push({dept:'🚚 Sales',dc:'var(--blue)',date:r.date,primary:escH(r.custname)+' / '+escH(r.invoice),
+      d1:escH(r.reason),d2:fmtRWF(r.totalVal||0),
+      status:r.status==='Picked Up'?'<span class="badge b-green">Picked Up</span>':'<span class="badge b-orange">Pending</span>',
+      id:r.id,deptKey:'sales'});
+  });
+  if(filter==='all'||filter==='inventory') inventoryData.forEach(function(r){
+    var ps=(r.products||[]).map(function(p){return escH(p.name);}).join(', ').slice(0,40);
+    rows.push({dept:'📦 Inventory',dc:'var(--green)',date:r.date,primary:escH(r.supplier),
+      d1:ps+'…',d2:fmtRWF(r.totalVal||0),
+      status:'<span class="badge b-green">Stocked</span>',id:r.id,deptKey:'inventory'});
+  });
+  if(filter==='all'||filter==='credit') creditData.forEach(function(r){
+    var sb=r.status==='Approved'?'<span class="badge b-green">Approved</span>'
+          :r.status==='Rejected'?'<span class="badge b-red">Rejected</span>'
+          :'<span class="badge b-orange">Pending</span>';
+    rows.push({dept:'💳 Credit',dc:'var(--yellow)',date:r.date,primary:escH(r.name)+' / '+escH(r.acct),
+      d1:fmtRWF(r.requested),d2:'Balance: '+fmtRWF(r.balance||0),status:sb,id:r.id,deptKey:'credit'});
+  });
+  if(filter==='all'||filter==='problems') problemsData.forEach(function(r){
+    var st=r.status==='Resolved'?'<span class="badge b-green">Resolved</span>'
+          :r.status==='In Progress'?'<span class="badge b-blue">In Progress</span>'
+          :'<span class="badge b-red">Open</span>';
+    rows.push({dept:'⚠️ Problems',dc:'var(--red)',date:r.date,primary:escH(r.type),
+      d1:escH(r.desc.slice(0,45))+'…',d2:'Severity: '+r.severity,status:st,id:r.id,deptKey:'problems'});
+  });
+  rows.sort(function(a,b){return b.date.localeCompare(a.date);});
+  var tbody=document.getElementById('dashTbody');
+  if(!rows.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray)">No data yet. Departments need to add entries first.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=rows.map(function(r){
+    return '<tr>'
+      +'<td><span class="badge" style="border:1px solid '+r.dc+';color:'+r.dc+';background:rgba(0,0,0,.3)">'+r.dept+'</span></td>'
+      +'<td class="mono" style="font-size:11px">'+r.date+'</td>'
+      +'<td style="font-size:12px;font-weight:600">'+r.primary+'</td>'
+      +'<td style="font-size:11px;color:var(--gray)">'+r.d1+'</td>'
+      +'<td class="mono" style="font-size:11px">'+r.d2+'</td>'
+      +'<td>'+r.status+'</td>'
+      +'<td class="no-print"><button class="btn btn-red btn-xs" onclick="dashDelete(\''+r.deptKey+'\',\''+r.id+'\')">✕</button></td>'
+    +'</tr>';
+  }).join('');
+}
+
+function dashDelete(dept,id){
+  if(!confirm('Delete this record permanently?'))return;
+  if(dept==='sales'){salesData=salesData.filter(function(r){return r.id!==id;});lsSet('nrt_sales_v2',salesData);}
+  else if(dept==='inventory'){inventoryData=inventoryData.filter(function(r){return r.id!==id;});lsSet('nrt_inventory_v2',inventoryData);}
+  else if(dept==='credit'){creditData=creditData.filter(function(r){return r.id!==id;});lsSet('nrt_credit_v2',creditData);}
+  else if(dept==='problems'){problemsData=problemsData.filter(function(r){return r.id!==id;});lsSet('nrt_problems_v2',problemsData);}
+  toast('Deleted.','ok');renderDashboard();
+}
+
+// ══════════════ PRINT ENGINE ══════════════
+function printDept(dept){
+  var titles={sales:'Logistics & Sales — Uncarried Goods Report',inventory:'Inventory Stock-In Report',credit:'Credit Management Report',problems:'Problem Tracking Report'};
+  document.getElementById('printTitle').textContent=titles[dept]||'Department Report';
+  document.getElementById('printDate').textContent='Generated: '+new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' at '+new Date().toLocaleTimeString();
+  // Mark current view as print-target
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('print-target');});
+  var el=document.getElementById('view-'+dept);
+  if(el)el.classList.add('print-target');
+  document.getElementById('printHeader').style.display='block';
+  window.print();
+  setTimeout(function(){
+    document.getElementById('printHeader').style.display='none';
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('print-target');});
+  },2000);
+}
+
+function printDash(){
+  document.getElementById('printTitle').textContent='Master Dashboard Report — All Departments';
+  document.getElementById('printDate').textContent='Generated: '+new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' at '+new Date().toLocaleTimeString();
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('print-target');});
+  document.getElementById('view-dashboard').classList.add('print-target');
+  document.getElementById('printHeader').style.display='block';
+  window.print();
+  setTimeout(function(){
+    document.getElementById('printHeader').style.display='none';
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('print-target');});
+  },2000);
+}
+
+function printSingleRecord(bodyId,title,date){
+  var body=document.getElementById(bodyId);
+  if(!body)return;
+  var win=window.open('','_blank','width=700,height=600');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>'+escH(title)+'</title>'
+    +'<style>body{font-family:Segoe UI,sans-serif;font-size:13px;color:#000;margin:30px}'
+    +'h2{color:#1a3c6b;border-bottom:2px solid #1a3c6b;padding-bottom:8px}'
+    +'table{width:100%;border-collapse:collapse;margin-top:12px}'
+    +'th{background:#1a3c6b;color:#fff;padding:8px 10px;text-align:left;font-size:11px}'
+    +'td{padding:8px 10px;border:1px solid #ccc}'
+    +'.lbl{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}'
+    +'.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}'
+    +'.brand{text-align:center;border-bottom:2px solid #1a3c6b;margin-bottom:20px;padding-bottom:12px}'
+    +'</style></head><body>'
+    +'<div class="brand"><div style="font-size:20px;font-weight:900;color:#1a3c6b">NRT COMPANY LTD</div>'
+    +'<div style="font-size:11px;color:#555">TIN: 111643906 | Kigali, Rwanda</div>'
+    +'<div style="font-size:14px;font-weight:700;margin-top:8px">'+escH(title)+'</div>'
+    +'<div style="font-size:11px;color:#777">'+escH(date)+'</div></div>'
+    +body.innerHTML
+    +'<div style="margin-top:24px;font-size:10px;color:#999;text-align:center">Printed on '+new Date().toLocaleString('en-GB')+'</div>'
+    +'</body></html>');
+  win.document.close();
+  setTimeout(function(){win.print();},400);
+}
+
+// ══════════════ EXPORT CSV ══════════════
+function exportAllCSV(){
+  var rows=[['Department','Date','Customer/Supplier','Invoice/Account','Products/Details','Qty','Total Value (RWF)','Status']];
+  salesData.forEach(function(r){
+    var prods=(r.goods||[]).map(function(g){return g.name+'×'+g.qty+'@'+g.price;}).join(' | ');
+    rows.push(['Sales',r.date,r.custname,r.invoice,prods,r.totalQty||0,r.totalVal||0,r.status]);
+  });
+  inventoryData.forEach(function(r){
+    var prods=(r.products||[]).map(function(p){return p.name+'×'+p.qty+'@'+p.price;}).join(' | ');
+    rows.push(['Inventory',r.date,r.supplier,r.batch||'',prods,r.totalQty||0,r.totalVal||0,'Stocked']);
+  });
+  creditData.forEach(function(r){
+    var goods=(r.goods||[]).map(function(g){return g.name+'×'+g.qty;}).join(' | ');
+    rows.push(['Credit',r.date,r.name,r.acct,goods||'No goods recorded',r.requested,r.balance||0,r.status]);
+  });
+  problemsData.forEach(function(r){
+    rows.push(['Problems',r.date,r.person||'—',r.type,r.desc,1,0,r.status]);
+  });
+  var csv=rows.map(function(r){
+    return r.map(function(c){var s=String(c==null?'':c);if(s.indexOf(',')>-1||s.indexOf('"')>-1)s='"'+s.replace(/"/g,'""')+'"';return s;}).join(',');
+  }).join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;
+  a.download='NRT_AllData_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);toast('Data exported to CSV!','ok');
+}
+
+// ══════════════ CHANGE PASSWORD ══════════════
+function openChangePwd(){
+  document.getElementById('cp-current').value='';
+  document.getElementById('cp-new').value='';
+  document.getElementById('cp-confirm').value='';
+  document.getElementById('cp-err').style.display='none';
+  document.getElementById('cp-ok').style.display='none';
+  document.getElementById('cpRole').textContent=ROLE_LABELS[currentRole]||currentRole;
+  document.getElementById('changePwdModal').classList.remove('hidden');
+}
+function doChangePwd(){
+  var cur=document.getElementById('cp-current').value;
+  var nw=document.getElementById('cp-new').value;
+  var conf=document.getElementById('cp-confirm').value;
+  var errEl=document.getElementById('cp-err');
+  var okEl=document.getElementById('cp-ok');
+  errEl.style.display='none';okEl.style.display='none';
+  var creds=getCreds();
+  if(cur!==creds[currentRole]){errEl.textContent='❌ Current password is incorrect.';errEl.style.display='block';return;}
+  if(nw.length<6){errEl.textContent='❌ New password must be at least 6 characters.';errEl.style.display='block';return;}
+  if(nw!==conf){errEl.textContent='❌ New passwords do not match.';errEl.style.display='block';return;}
+  creds[currentRole]=nw;
+  saveCreds(creds);
+  okEl.textContent='✅ Password changed successfully!';okEl.style.display='block';
+  setTimeout(function(){closeModal('changePwdModal');},1500);
+  toast('Password updated!','ok');
+}
+
+// ══════════════ TOAST ══════════════
+function toast(msg,type){
+  var icons={ok:'✅',err:'❌',info:'ℹ️'};
+  var colors={ok:'var(--green)',err:'var(--red)',info:'var(--gold)'};
+  var el=document.createElement('div');el.className='toast';
+  el.style.borderLeft='3px solid '+(colors[type]||colors.info);
+  el.innerHTML='<span>'+(icons[type]||'ℹ️')+'</span><span>'+escH(msg)+'</span>';
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(function(){el.remove();},3500);
+}
+
+// ══════════════ KEYBOARD ══════════════
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    ['salesDetailModal','salesEditModal','invDetailModal','creditDetailModal','creditEditModal','probEditModal','changePwdModal'].forEach(closeModal);
+  }
+});
+
+// ══════════════ PRINT CSS inject ══════════════
+// Make only the active view print
+var printStyle=document.createElement('style');
+printStyle.textContent='@media print{.view{display:none!important}.view.print-target{display:block!important}}';
+document.head.appendChild(printStyle);
+</script>
+</body>
+</html>
